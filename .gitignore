@@ -1,5 +1,6 @@
 .settings/
 bin/
+build/
 tmp/
 .metadata
 .classpath
@@ -15,4 +16,5 @@ mp_erros.log
 mp_config.cfg
 kRPC - Java.pdf
 .idea
-com.pesterenan.MechPeste.iml
+*.iml
+.gradle
