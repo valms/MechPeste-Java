@@ -3,7 +3,6 @@ package com.pesterenan.controllers;
 import com.pesterenan.model.Nave;
 import com.pesterenan.views.MainGui;
 import com.pesterenan.views.StatusJPanel;
-
 import krpc.client.Connection;
 import krpc.client.RPCException;
 import krpc.client.StreamException;
@@ -11,34 +10,34 @@ import krpc.client.services.SpaceCenter.Vessel;
 
 public class FlightController extends Nave implements Runnable {
 
-	protected final static float CONST_GRAV = 9.81f;
+    protected final static float CONST_GRAV = 9.81f;
 
-	public FlightController(Connection con) {
-		super(con);
-		iniciarStreams(this.naveAtual);
-	}
+    public FlightController(Connection con) {
+        super(con);
+        iniciarStreams(this.naveAtual);
+    }
 
-	private void iniciarStreams(Vessel naveAtual) {
-		try {
-			pontoRefOrbital = naveAtual.getOrbit().getBody().getReferenceFrame();
-			pontoRefSuperficie = naveAtual.getSurfaceReferenceFrame();
-			parametrosDeVoo = naveAtual.flight(pontoRefOrbital);
-			altitude = getConexao().addStream(parametrosDeVoo, "getMeanAltitude");
-			altitudeSup = getConexao().addStream(parametrosDeVoo, "getSurfaceAltitude");
-			apoastro = getConexao().addStream(naveAtual.getOrbit(), "getApoapsisAltitude");
-			periastro = getConexao().addStream(naveAtual.getOrbit(), "getPeriapsisAltitude");
-			velVertical = getConexao().addStream(parametrosDeVoo, "getVerticalSpeed");
-			velHorizontal = getConexao().addStream(parametrosDeVoo, "getHorizontalSpeed");
-			massaTotal = getConexao().addStream(naveAtual, "getMass");
-			tempoMissao = getConexao().addStream(naveAtual, "getMET");
-			bateriaAtual = getConexao().addStream(naveAtual.getResources(), "amount", "ElectricCharge");
-			bateriaTotal = naveAtual.getResources().max("ElectricCharge");
-			acelGravidade = naveAtual.getOrbit().getBody().getSurfaceGravity();
-			corpoCeleste = naveAtual.getOrbit().getBody().getName();
-		} catch (StreamException | RPCException | NullPointerException | IllegalArgumentException e) {
-			checarConexao();
-		}
-	}
+    private void iniciarStreams(Vessel naveAtual) {
+        try {
+            pontoRefOrbital = naveAtual.getOrbit().getBody().getReferenceFrame();
+            pontoRefSuperficie = naveAtual.getSurfaceReferenceFrame();
+            parametrosDeVoo = naveAtual.flight(pontoRefOrbital);
+            altitude = getConexao().addStream(parametrosDeVoo, "getMeanAltitude");
+            altitudeSup = getConexao().addStream(parametrosDeVoo, "getSurfaceAltitude");
+            apoastro = getConexao().addStream(naveAtual.getOrbit(), "getApoapsisAltitude");
+            periastro = getConexao().addStream(naveAtual.getOrbit(), "getPeriapsisAltitude");
+            velVertical = getConexao().addStream(parametrosDeVoo, "getVerticalSpeed");
+            velHorizontal = getConexao().addStream(parametrosDeVoo, "getHorizontalSpeed");
+            massaTotal = getConexao().addStream(naveAtual, "getMass");
+            tempoMissao = getConexao().addStream(naveAtual, "getMET");
+            bateriaAtual = getConexao().addStream(naveAtual.getResources(), "amount", "ElectricCharge");
+            bateriaTotal = naveAtual.getResources().max("ElectricCharge");
+            acelGravidade = naveAtual.getOrbit().getBody().getSurfaceGravity();
+            corpoCeleste = naveAtual.getOrbit().getBody().getName();
+        } catch (StreamException | RPCException | NullPointerException | IllegalArgumentException e) {
+            checarConexao();
+        }
+    }
 
     @Override
     public void run() {
