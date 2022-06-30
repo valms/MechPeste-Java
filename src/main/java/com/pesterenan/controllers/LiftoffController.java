@@ -2,7 +2,7 @@ package com.pesterenan.controllers;
 
 import com.pesterenan.MechPeste;
 import com.pesterenan.utils.ControlePID;
-import com.pesterenan.utils.Modulos;
+import com.pesterenan.enums.Modulos;
 import com.pesterenan.utils.Utilities;
 import com.pesterenan.views.StatusJPanel;
 import java.io.IOException;
@@ -12,7 +12,7 @@ import krpc.client.RPCException;
 import krpc.client.StreamException;
 import krpc.client.services.SpaceCenter.Engine;
 
-import static com.pesterenan.utils.Status.STATUS_DECOLAGEM_ORBITAL;
+import static com.pesterenan.enums.Status.STATUS_DECOLAGEM_ORBITAL;
 
 public class LiftoffController extends FlightController implements Runnable {
 

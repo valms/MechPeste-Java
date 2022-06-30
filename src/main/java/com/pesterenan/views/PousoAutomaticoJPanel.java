@@ -1,8 +1,8 @@
 package com.pesterenan.views;
 
 import com.pesterenan.MechPeste;
-import com.pesterenan.utils.Dicionario;
-import com.pesterenan.utils.Modulos;
+import com.pesterenan.enums.Dicionario;
+import com.pesterenan.enums.Modulos;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

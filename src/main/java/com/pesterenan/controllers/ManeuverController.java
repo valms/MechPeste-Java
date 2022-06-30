@@ -1,7 +1,7 @@
 package com.pesterenan.controllers;
 
-import com.pesterenan.utils.Modulos;
-import com.pesterenan.utils.Status;
+import com.pesterenan.enums.Modulos;
+import com.pesterenan.enums.Status;
 import com.pesterenan.utils.Utilities;
 import com.pesterenan.views.MainGui;
 import com.pesterenan.views.StatusJPanel;

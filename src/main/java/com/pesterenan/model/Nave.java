@@ -13,7 +13,7 @@ import krpc.client.services.SpaceCenter.ReferenceFrame;
 import krpc.client.services.SpaceCenter.Vessel;
 import krpc.client.services.SpaceCenter.VesselSituation;
 
-import static com.pesterenan.utils.Status.ERRO_CONEXAO;
+import static com.pesterenan.enums.Status.ERRO_CONEXAO;
 
 public class Nave {
     protected static SpaceCenter centroEspacial;

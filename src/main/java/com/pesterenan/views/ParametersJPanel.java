@@ -5,11 +5,11 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.*;
 
-import static com.pesterenan.utils.Dicionario.DECOLAGEM_ORBITAL;
-import static com.pesterenan.utils.Dicionario.MANOBRAS;
-import static com.pesterenan.utils.Dicionario.POUSO_AUTOMATICO;
-import static com.pesterenan.utils.Dicionario.ROVER_AUTONOMO;
-import static com.pesterenan.utils.Dicionario.TELEMETRIA;
+import static com.pesterenan.enums.Dicionario.DECOLAGEM_ORBITAL;
+import static com.pesterenan.enums.Dicionario.MANOBRAS;
+import static com.pesterenan.enums.Dicionario.POUSO_AUTOMATICO;
+import static com.pesterenan.enums.Dicionario.ROVER_AUTONOMO;
+import static com.pesterenan.enums.Dicionario.TELEMETRIA;
 
 public class ParametersJPanel extends JPanel implements PropertyChangeListener {
 

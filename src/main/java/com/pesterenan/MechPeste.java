@@ -4,7 +4,7 @@ import com.pesterenan.controllers.FlightController;
 import com.pesterenan.controllers.LandingController;
 import com.pesterenan.controllers.LiftoffController;
 import com.pesterenan.controllers.ManeuverController;
-import com.pesterenan.utils.Modulos;
+import com.pesterenan.enums.Modulos;
 import com.pesterenan.views.MainGui;
 import com.pesterenan.views.StatusJPanel;
 import java.io.IOException;
@@ -13,12 +13,12 @@ import krpc.client.Connection;
 import krpc.client.RPCException;
 import krpc.client.StreamException;
 
-import static com.pesterenan.utils.Dicionario.ERRO_AO_CONECTAR;
-import static com.pesterenan.utils.Dicionario.MECHPESTE;
-import static com.pesterenan.utils.Dicionario.TELEMETRIA;
-import static com.pesterenan.utils.Status.CONECTADO;
-import static com.pesterenan.utils.Status.CONECTANDO;
-import static com.pesterenan.utils.Status.ERRO_CONEXAO;
+import static com.pesterenan.enums.Dicionario.ERRO_AO_CONECTAR;
+import static com.pesterenan.enums.Dicionario.MECHPESTE;
+import static com.pesterenan.enums.Dicionario.TELEMETRIA;
+import static com.pesterenan.enums.Status.CONECTADO;
+import static com.pesterenan.enums.Status.CONECTANDO;
+import static com.pesterenan.enums.Status.ERRO_CONEXAO;
 
 public class MechPeste {
 

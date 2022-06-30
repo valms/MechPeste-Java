@@ -1,7 +1,7 @@
 package com.pesterenan.controllers;
 
 import com.pesterenan.utils.ControlePID;
-import com.pesterenan.utils.Vetor;
+import com.pesterenan.utils.Vector;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -38,7 +38,7 @@ public class RoverAutonomoController {
     List<Waypoint> listaDeMarcadoresASeguir = new ArrayList<Waypoint>();
     Waypoint alvoMarcador;
     Flight parametrosRover;
-    Vetor posicaoRover, posicaoAnguloRover, posicaoAlvo, direcaoRover, direcaoTrajeto;
+    Vector posicaoRover, posicaoAnguloRover, posicaoAlvo, direcaoRover, direcaoTrajeto;
     double anguloAlvo = 0, anguloRover = 0;
     float limiteDistanciaAlvo = 100;
     float velocidadeCurva = 3;
@@ -47,9 +47,9 @@ public class RoverAutonomoController {
     Stream<Double> velocidadeRover;
     double cargaTotal = 100;
     double cargaAtual = 10;
-    Vetor distParaAlvo;
+    Vector distParaAlvo;
     int pontos;
-    private List<Vetor> pontosASeguir = new ArrayList<Vetor>();
+    private List<Vector> pontosASeguir = new ArrayList<Vector>();
     private List<Triplet<Double, Double, Double>> pontosVertices = new ArrayList<Triplet<Double, Double, Double>>();
     private ReferenceFrame pontoRefRover;
     private ReferenceFrame pontoRefOrbital;
@@ -117,7 +117,7 @@ public class RoverAutonomoController {
         } else {
             try {
                 naveAlvo = centroEspacial.getTargetVessel();
-                distParaAlvo = new Vetor(naveAlvo.position(pontoRefSuperficie));
+                distParaAlvo = new Vector(naveAlvo.position(pontoRefSuperficie));
                 fazerListaDoCaminho();
             } catch (NullPointerException e) {
                 executandoAutoRover = false;
@@ -168,7 +168,7 @@ public class RoverAutonomoController {
     private void checarDistancia() throws RPCException, IOException {
         double distanciaProcura = DISTANCIA_DE_PROCURA;
         for (Waypoint marcador : listaDeMarcadoresASeguir) {
-            double distanciaMarcador = posicionarMarcador(marcador).Magnitude3d();
+            double distanciaMarcador = posicionarMarcador(marcador).magnitude3D();
             if (distanciaProcura > distanciaMarcador) {
                 distanciaProcura = distanciaMarcador;
                 alvoMarcador = marcador;
@@ -183,21 +183,21 @@ public class RoverAutonomoController {
         // posi��o ultimo ponto
         System.out.println("distParaAlvo" + distParaAlvo);
         // dividir distancia at� ponto por 1000 para gerar pontos intermediarios
-        pontos = (int) distParaAlvo.Magnitude3d() / 1000;
+        pontos = (int) distParaAlvo.magnitude3D() / 1000;
         System.out.println("pontos" + pontos);
         // dividir distancia final por pontos para conseguir distancia do segmento
-        Vetor ponto = distParaAlvo.divide((double) pontos);
+        Vector ponto = distParaAlvo.divide((double) pontos);
         System.out.println("ponto" + ponto);
         System.out.println();
         // adicionar ponto na lista
         pontosASeguir.add(posicionarVetor(ponto));
         System.out.println(pontosASeguir.get(0));
         for (int i = 1; i < pontos; i++) {
-            Vetor pontoSeguinte = (posicionarVetor(ponto.multiplica(i)));
+            Vector pontoSeguinte = (posicionarVetor(ponto.multiplica(i)));
             pontosASeguir.add(pontoSeguinte);
         }
         for (int j = 1; j < pontosASeguir.size(); j++) {
-            pontosVertices.add(posicionarVetor(pontosASeguir.get(j)).paraTriplet());
+            pontosVertices.add(posicionarVetor(pontosASeguir.get(j)).toTriplet());
         }
     }
 
@@ -212,7 +212,7 @@ public class RoverAutonomoController {
             }
             carregarBaterias();
             if (!carregando) {
-                if (posicaoAlvo.Magnitude3d() > limiteDistanciaAlvo) {
+                if (posicaoAlvo.magnitude3D() > limiteDistanciaAlvo) {
                     if (rover.getControl().getBrakes()) {
                         rover.getControl().setBrakes(false);
                     }
@@ -289,16 +289,16 @@ public class RoverAutonomoController {
             if (buscandoMarcadores) {
                 posicaoAlvo = posParaRover(posicionarMarcador(alvoMarcador));
             } else {
-                posicaoAlvo = posParaRover(new Vetor(naveAlvo.position(pontoRefSuperficie)));
+                posicaoAlvo = posParaRover(new Vector(naveAlvo.position(pontoRefSuperficie)));
             }
         }
 
         // Definir a direcao do Rover e do Trajeto
-        direcaoRover = new Vetor(rover.direction(pontoRefRover));
-        direcaoTrajeto = posicaoAlvo.Normalizar();
+        direcaoRover = new Vector(rover.direction(pontoRefRover));
+        direcaoTrajeto = posicaoAlvo.normalizar();
         // Definir o angulo entre os dois
-        anguloAlvo = (Vetor.anguloDirecao(direcaoTrajeto));
-        anguloRover = (Vetor.anguloDirecao(direcaoRover));
+        anguloAlvo = (Vector.anguloDirecao(direcaoTrajeto));
+        anguloRover = (Vector.anguloDirecao(direcaoRover));
 //		ctrlDirecao.setEntradaPID(anguloRover * 0.5);
 //		ctrlDirecao.setLimitePID(anguloAlvo * 0.5);
     }
@@ -308,28 +308,28 @@ public class RoverAutonomoController {
         // Vetores dire��o para Ponto de Ref Rover:
         // Vetor ( -ESQ/DIR , -TRAS/FRENTE , -CIMA/BAIXO)
 
-        Vetor dirEsq = new Vetor(rover.direction(pontoRefRover)).soma(new Vetor(-0.2, -1.0, 0.8));
-        Vetor dirDir = new Vetor(rover.direction(pontoRefRover)).soma(new Vetor(0.2, -1.0, 0.8));
-        Vetor dirTras = new Vetor(rover.direction(pontoRefRover)).soma(new Vetor(0.0, -1.2, 0.8));
-        Vetor dirFrente = new Vetor(rover.direction(pontoRefRover)).soma(new Vetor(0.0, -0.8, 0.8));
+        Vector dirEsq = new Vector(rover.direction(pontoRefRover)).soma(new Vector(-0.2, -1.0, 0.8));
+        Vector dirDir = new Vector(rover.direction(pontoRefRover)).soma(new Vector(0.2, -1.0, 0.8));
+        Vector dirTras = new Vector(rover.direction(pontoRefRover)).soma(new Vector(0.0, -1.2, 0.8));
+        Vector dirFrente = new Vector(rover.direction(pontoRefRover)).soma(new Vector(0.0, -0.8, 0.8));
 
         // BOUNDING BOX: ( ESQ, TRAS, CIMA / DIR, FRENTE, BAIXO)
         double distEsq = centroEspacial.raycastDistance(
-            new Vetor(rover.boundingBox(pontoRefRover).getValue0().getValue0(), 0,
-                rover.boundingBox(pontoRefRover).getValue0().getValue2()).paraTriplet(),
-            dirEsq.paraTriplet(), pontoRefRover);
+            new Vector(rover.boundingBox(pontoRefRover).getValue0().getValue0(), 0,
+                rover.boundingBox(pontoRefRover).getValue0().getValue2()).toTriplet(),
+            dirEsq.toTriplet(), pontoRefRover);
         double distDir = centroEspacial.raycastDistance(
-            new Vetor(rover.boundingBox(pontoRefRover).getValue1().getValue0(), 0,
-                rover.boundingBox(pontoRefRover).getValue0().getValue2()).paraTriplet(),
-            dirDir.paraTriplet(), pontoRefRover);
+            new Vector(rover.boundingBox(pontoRefRover).getValue1().getValue0(), 0,
+                rover.boundingBox(pontoRefRover).getValue0().getValue2()).toTriplet(),
+            dirDir.toTriplet(), pontoRefRover);
         double distTras = centroEspacial.raycastDistance(
-            new Vetor(0, rover.boundingBox(pontoRefRover).getValue0().getValue1(),
-                rover.boundingBox(pontoRefRover).getValue0().getValue2()).paraTriplet(),
-            dirTras.paraTriplet(), pontoRefRover);
+            new Vector(0, rover.boundingBox(pontoRefRover).getValue0().getValue1(),
+                rover.boundingBox(pontoRefRover).getValue0().getValue2()).toTriplet(),
+            dirTras.toTriplet(), pontoRefRover);
         double distFrente = centroEspacial.raycastDistance(
-            new Vetor(0, rover.boundingBox(pontoRefRover).getValue1().getValue1(),
-                rover.boundingBox(pontoRefRover).getValue0().getValue2()).paraTriplet(),
-            dirFrente.paraTriplet(), pontoRefRover);
+            new Vector(0, rover.boundingBox(pontoRefRover).getValue1().getValue1(),
+                rover.boundingBox(pontoRefRover).getValue0().getValue2()).toTriplet(),
+            dirFrente.toTriplet(), pontoRefRover);
 
         double difED = distEsq - distDir;
         if (Double.compare(difED, Double.NaN) == 0) {
@@ -358,7 +358,7 @@ public class RoverAutonomoController {
         if (buscandoMarcadores) {
             distParaAlvo = posParaRover(posicionarMarcador(alvoMarcador));
         } else {
-            distParaAlvo = posParaRover(new Vetor(naveAlvo.position(pontoRefSuperficie)));
+            distParaAlvo = posParaRover(new Vector(naveAlvo.position(pontoRefSuperficie)));
         }
         double mudancaDeTempo = tempoDoJogo.get() - tempoAnterior;
         if (mudancaDeTempo > 1) {
@@ -366,24 +366,24 @@ public class RoverAutonomoController {
         }
     }
 
-    private Vetor posicionarMarcador(Waypoint marcador) throws RPCException {
-        return new Vetor(rover.getOrbit().getBody().surfacePosition(marcador.getLatitude(), marcador.getLongitude(),
+    private Vector posicionarMarcador(Waypoint marcador) throws RPCException {
+        return new Vector(rover.getOrbit().getBody().surfacePosition(marcador.getLatitude(), marcador.getLongitude(),
             pontoRefSuperficie));
     }
 
-    private Vetor posicionarPonto(Vetor vetor) throws RPCException {
-        return new Vetor(rover.getOrbit().getBody().surfacePosition(
-            rover.getOrbit().getBody().latitudeAtPosition(vetor.paraTriplet(), pontoRefOrbital),
-            rover.getOrbit().getBody().longitudeAtPosition(vetor.paraTriplet(), pontoRefOrbital),
+    private Vector posicionarPonto(Vector vector) throws RPCException {
+        return new Vector(rover.getOrbit().getBody().surfacePosition(
+            rover.getOrbit().getBody().latitudeAtPosition(vector.toTriplet(), pontoRefOrbital),
+            rover.getOrbit().getBody().longitudeAtPosition(vector.toTriplet(), pontoRefOrbital),
             pontoRefSuperficie));
     }
 
-    private Vetor posParaRover(Vetor vetor) throws IOException, RPCException {
-        return new Vetor(centroEspacial.transformPosition(vetor.paraTriplet(), pontoRefSuperficie, pontoRefRover));
+    private Vector posParaRover(Vector vector) throws IOException, RPCException {
+        return new Vector(centroEspacial.transformPosition(vector.toTriplet(), pontoRefSuperficie, pontoRefRover));
     }
 
-    private Vetor posicionarVetor(Vetor vetor) throws IOException, RPCException {
-        return new Vetor(centroEspacial.transformPosition(vetor.paraTriplet(), pontoRefSuperficie, pontoRefOrbital));
+    private Vector posicionarVetor(Vector vector) throws IOException, RPCException {
+        return new Vector(centroEspacial.transformPosition(vector.toTriplet(), pontoRefSuperficie, pontoRefOrbital));
     }
 
 }

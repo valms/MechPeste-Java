@@ -1,4 +1,4 @@
-package com.pesterenan.utils;
+package com.pesterenan.enums;
 
 public enum Modulos {
 

@@ -9,8 +9,8 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.border.BevelBorder;
 
-import static com.pesterenan.utils.Dicionario.CONECTAR;
-import static com.pesterenan.utils.Status.CONECTANDO;
+import static com.pesterenan.enums.Dicionario.CONECTAR;
+import static com.pesterenan.enums.Status.CONECTANDO;
 
 public class StatusJPanel extends JPanel {
 
@@ -26,6 +26,10 @@ public class StatusJPanel extends JPanel {
 
     public static void setStatus(String newStatus) {
         lblStatus.setText(newStatus);
+    }
+
+    public void setStatusLbl(String statusMessage) {
+        lblStatus.setText(statusMessage);
     }
 
     public static void botConectarVisivel(boolean visible) {

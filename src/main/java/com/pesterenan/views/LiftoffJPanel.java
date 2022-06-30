@@ -1,7 +1,7 @@
 package com.pesterenan.views;
 
 import com.pesterenan.MechPeste;
-import com.pesterenan.utils.Modulos;
+import com.pesterenan.enums.Modulos;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
@@ -11,7 +11,7 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.border.TitledBorder;
 
-import static com.pesterenan.utils.Dicionario.TELEMETRIA;
+import static com.pesterenan.enums.Dicionario.TELEMETRIA;
 
 public class LiftoffJPanel extends JPanel implements ActionListener {
 

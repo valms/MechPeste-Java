@@ -8,10 +8,10 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.border.TitledBorder;
 
-import static com.pesterenan.utils.Dicionario.DECOLAGEM_ORBITAL;
-import static com.pesterenan.utils.Dicionario.MANOBRAS;
-import static com.pesterenan.utils.Dicionario.POUSO_AUTOMATICO;
-import static com.pesterenan.utils.Dicionario.ROVER_AUTONOMO;
+import static com.pesterenan.enums.Dicionario.DECOLAGEM_ORBITAL;
+import static com.pesterenan.enums.Dicionario.MANOBRAS;
+import static com.pesterenan.enums.Dicionario.POUSO_AUTOMATICO;
+import static com.pesterenan.enums.Dicionario.ROVER_AUTONOMO;
 
 public class FunctionsJPanel extends JPanel implements ActionListener {
 

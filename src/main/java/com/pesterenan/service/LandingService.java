@@ -1,5 +1,6 @@
-package com.pesterenan.controllers;
+package com.pesterenan.service;
 
+import com.pesterenan.model.SpaceShip;
 import com.pesterenan.utils.ControlePID;
 import com.pesterenan.enums.Modulos;
 import com.pesterenan.utils.Navigation;
@@ -10,12 +11,21 @@ import com.pesterenan.views.StatusJPanel;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import krpc.client.Connection;
 import krpc.client.RPCException;
 import krpc.client.StreamException;
+import krpc.client.services.SpaceCenter.Vessel;
 
-import static com.pesterenan.enums.Status.STATUS_POUSO_AUTOMATICO;
+public class LandingService implements Runnable {
 
-public class LandingController extends FlightController implements Runnable {
+    private final Connection krpcConnection;
+
+    private final FlightControlService flightControlService;
+
+    private final SpaceShip spaceShip;
+
+    private final Vessel vessel;
+
 
     private static final int ALTITUDE_POUSO_AUTOMATICO = 8000;
     private static double velP = 0.025, velI = 0.001, velD = 0.01;
@@ -25,17 +35,26 @@ public class LandingController extends FlightController implements Runnable {
     private Navigation navigation = new Navigation();
     private double altitudeDeSobrevoo = 100;
     private double distanciaDaQueima = 0, velocidadeTotal = 0;
-    private Map<String, String> comandos = new HashMap<>();
+    private Map<String, String> commands = new HashMap<>();
     private boolean executandoPousoAutomatico = false;
-    private boolean executandoSobrevoo = false;
+    private boolean isOverflying;
 
-    public LandingController(Map<String, String> comandos) {
-        super(getConexao());
-        this.comandos = comandos;
-        this.altitudeAcelPID.limitarSaida(0, 1);
-        this.velocidadeAcelPID.limitarSaida(0, 1);
-        StatusJPanel.setStatus(STATUS_POUSO_AUTOMATICO.get());
+    public LandingService(Connection krpcConnection, SpaceShip spaceShip, Map<String, String> commands, FlightControlService flightControlService) {
+        this.commands = commands;
+        this.spaceShip = spaceShip;
+        this.krpcConnection = krpcConnection;
+        this.flightControlService = flightControlService;
+
+        this.vessel = spaceShip.getActiveVessel();
     }
+
+//    public LandingService(Map<String, String> comandos) {
+//        super(getConexao());
+//        this.comandos = comandos;
+//        this.altitudeAcelPID.limitarSaida(0, 1);
+//        this.velocidadeAcelPID.limitarSaida(0, 1);
+//        StatusJPanel.setStatus(STATUS_POUSO_AUTOMATICO.get());
+//    }
 
     public static void descer() {
         descerDoSobrevoo = true;
@@ -44,24 +63,25 @@ public class LandingController extends FlightController implements Runnable {
 
     @Override
     public void run() {
-        if (comandos.get(Modulos.MODULO.get()).equals(Modulos.MODULO_POUSO_SOBREVOAR.get())) {
-            this.altitudeDeSobrevoo = Double.parseDouble(comandos.get(Modulos.ALTITUDE_SOBREVOO.get()));
-            executandoSobrevoo = true;
+        if (commands.get(Modulos.MODULO.get()).equals(Modulos.MODULO_POUSO_SOBREVOAR.get())) {
+            this.altitudeDeSobrevoo = Double.parseDouble(commands.get(Modulos.ALTITUDE_SOBREVOO.get()));
+            isOverflying = true;
             altitudeAcelPID.limitarSaida(-0.5, 1);
-            sobrevoarArea();
+            executeOverflyProcedure();
         }
-        if (comandos.get(Modulos.MODULO.get()).equals(Modulos.MODULO_POUSO.get())) {
+        if (commands.get(Modulos.MODULO.get()).equals(Modulos.MODULO_POUSO.get())) {
             pousarAutomaticamente();
         }
     }
 
-    private void sobrevoarArea() {
+    private void executeOverflyProcedure() {
         try {
-            liftoff();
-            naveAtual.getAutoPilot().engage();
-            while (executandoSobrevoo) {
+            this.flightControlService.executeLiftoffProcedure();
+            this.vessel.getAutoPilot().engage();
+
+            while (isOverflying) {
                 try {
-                    if (velHorizontal.get() > 15) {
+                    if (this.spaceShip.getVelHorizontal().get() > 15) {
                         navigation.mirarRetrogrado();
                     } else {
                         navigation.mirarRadialDeFora();
@@ -164,7 +184,7 @@ public class LandingController extends FlightController implements Runnable {
             case SPLASHED:
                 StatusJPanel.setStatus("Pouso Finalizado!");
                 executandoPousoAutomatico = false;
-                executandoSobrevoo = false;
+                isOverflying = false;
                 descerDoSobrevoo = false;
                 throttle(0.0f);
                 naveAtual.getControl().setSAS(true);

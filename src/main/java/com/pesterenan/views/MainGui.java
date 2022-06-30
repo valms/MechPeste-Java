@@ -3,12 +3,14 @@ package com.pesterenan.views;
 import java.awt.*;
 import javax.swing.*;
 
-import static com.pesterenan.utils.Dicionario.MECHPESTE;
+import static com.pesterenan.enums.Dicionario.MECHPESTE;
 
 public class MainGui extends JFrame {
 
     public static final int INPUT_WIDTH = 100;
-    private static final long serialVersionUID = 1L;
+
+    private static final long serialVersionUID = 1882983178697990584L;
+
     private static MainGui mainGui = null;
     private static StatusJPanel pnlStatus;
     private static FunctionsJPanel pnlFuncoes;
