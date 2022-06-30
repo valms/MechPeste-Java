@@ -1,25 +1,36 @@
 package com.pesterenan.controllers;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import org.javatuples.Triplet;
+
 import com.pesterenan.utils.ControlePID;
 import com.pesterenan.utils.Vetor;
+
 import krpc.client.Connection;
 import krpc.client.RPCException;
 import krpc.client.Stream;
 import krpc.client.StreamException;
 import krpc.client.services.SpaceCenter;
-import krpc.client.services.SpaceCenter.*;
-import org.javatuples.Triplet;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import krpc.client.services.SpaceCenter.Flight;
+import krpc.client.services.SpaceCenter.ReferenceFrame;
+import krpc.client.services.SpaceCenter.SASMode;
+import krpc.client.services.SpaceCenter.SolarPanel;
+import krpc.client.services.SpaceCenter.SolarPanelState;
+import krpc.client.services.SpaceCenter.SpeedMode;
+import krpc.client.services.SpaceCenter.Vessel;
+import krpc.client.services.SpaceCenter.Waypoint;
+import krpc.client.services.SpaceCenter.WaypointManager;
 
 // M�dulo de Piloto autom�tico de Rovers
 // Autor: Renan Torres <pesterenan@gmail.com>
 // Data: 14/02/2019
 
-public class RoverAutonomoController {
+public class RoverController extends FlightController {
 	private static final int DISTANCIA_DE_PROCURA = 4400000;
 	// Declara��o de vari�veis:
 	static private SpaceCenter centroEspacial;
@@ -54,11 +65,17 @@ public class RoverAutonomoController {
 	private Stream<Double> tempoDoJogo;
 	private double tempoAnterior;
 
-	public RoverAutonomoController(Connection conexao)
-			throws IOException, RPCException, InterruptedException, StreamException {
-		iniciarParametros(conexao);
-		definirAlvo();
-		controlarRover();
+	public RoverController(Map<String, String> commands) {
+		super(getConexao());
+		try {
+			iniciarParametros(getConexao());
+			definirAlvo();
+			controlarRover();
+		} catch (RPCException | StreamException | IOException | InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 
 	private void iniciarParametros(Connection conexao) throws RPCException, StreamException {
