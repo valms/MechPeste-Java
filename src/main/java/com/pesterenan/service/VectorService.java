@@ -24,7 +24,6 @@ import static java.util.Objects.isNull;
  * @version 1.1
  * @since 1.0
  **/
-
 public class VectorService {
 
     private final MathContext mathContext = DECIMAL64;

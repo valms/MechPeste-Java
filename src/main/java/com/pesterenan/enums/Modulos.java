@@ -23,13 +23,14 @@ public enum Modulos {
     EXPONENCIAL("Exponencial"),
     ROLAGEM("Rolagem");
 
-    String t;
+    final String description;
 
-    Modulos(String t) {
-        this.t = t;
+    Modulos(String description) {
+        this.description = description;
     }
 
     public String get() {
-        return this.t;
+        return this.description;
     }
+
 }

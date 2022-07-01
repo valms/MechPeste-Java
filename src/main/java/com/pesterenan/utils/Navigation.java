@@ -50,8 +50,9 @@ public class Navigation {
     }
 
     private Vector getElevacaoDirecaoDoVetor(Vector alvo) throws RPCException, IOException, StreamException {
-        Vector speed = new Vector(this.getSpeedTriplet());
-        alvo = this.vectorService.subtrai(alvo, new Vector(speed.getDimensionY(), speed.getDimensionZ(), speed.getDimensionX()));
+        Triplet<Double, Double, Double> speedTriplet = this.getSpeedTriplet();
+        Vector speed = new Vector(speedTriplet.getValue1(), speedTriplet.getValue2(), speedTriplet.getValue0());
+        alvo = this.vectorService.subtrai(alvo, speed);
         return new Vector(this.vectorService.steeringAngle(alvo), this.getClamp(), this.vectorService.steeringAngle(speed));
     }
 
@@ -69,7 +70,7 @@ public class Navigation {
     }
 
     private double getRemap() throws RPCException, StreamException {
-        return remap(1, 100, 90, 30, this.spaceShip.getVelHorizontal().get());
+        return remap(1, 100, 90, 30, this.spaceShip.getHorizontalSpeed().get());
     }
 
 }

@@ -3,13 +3,16 @@ package com.pesterenan.model;
 import java.math.BigDecimal;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.javatuples.Triplet;
 
 import static java.lang.String.valueOf;
 import static java.util.Arrays.asList;
 
+@Builder
 @Getter
 @Setter
 @AllArgsConstructor
@@ -66,7 +69,6 @@ public class Vector {
 
         this.vectorValuesList = asList(this.dimensionX, this.dimensionY, this.dimensionZ);
     }
-
 
     /**
      * Transforma um Vetor em uma tupla com os valores.

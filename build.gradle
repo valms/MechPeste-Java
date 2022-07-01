@@ -7,6 +7,10 @@ plugins {
 group 'org.example'
 version '1.0-SNAPSHOT'
 
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
 repositories {
     mavenCentral()
     flatDir {
@@ -19,8 +23,14 @@ dependencies {
     implementation 'com.google.protobuf:protobuf-java:3.21.1'
     implementation 'org.javatuples:javatuples:1.2'
 
+    // Log
+    implementation 'ch.qos.logback:logback-core:1.2.11'
+    implementation 'ch.qos.logback:logback-classic:1.2.11'
+    implementation 'org.slf4j:slf4j-api:1.7.36'
+
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+
 }
 
 test {

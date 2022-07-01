@@ -1,206 +1,117 @@
-package com.pesterenan.service;
-
-import com.pesterenan.model.SpaceShip;
-import com.pesterenan.utils.ControlePID;
-import com.pesterenan.enums.Modulos;
-import com.pesterenan.utils.Navigation;
-import com.pesterenan.utils.Utilities;
-import com.pesterenan.utils.Vector;
-import com.pesterenan.views.MainGui;
-import com.pesterenan.views.StatusJPanel;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import krpc.client.Connection;
-import krpc.client.RPCException;
-import krpc.client.StreamException;
-import krpc.client.services.SpaceCenter.Vessel;
-
-public class LandingService implements Runnable {
-
-    private final Connection krpcConnection;
-
-    private final FlightControlService flightControlService;
-
-    private final SpaceShip spaceShip;
-
-    private final Vessel vessel;
-
-
-    private static final int ALTITUDE_POUSO_AUTOMATICO = 8000;
-    private static double velP = 0.025, velI = 0.001, velD = 0.01;
-    private static boolean descerDoSobrevoo = false;
-    private ControlePID altitudeAcelPID = new ControlePID();
-    private ControlePID velocidadeAcelPID = new ControlePID();
-    private Navigation navigation = new Navigation();
-    private double altitudeDeSobrevoo = 100;
-    private double distanciaDaQueima = 0, velocidadeTotal = 0;
-    private Map<String, String> commands = new HashMap<>();
-    private boolean executandoPousoAutomatico = false;
-    private boolean isOverflying;
-
-    public LandingService(Connection krpcConnection, SpaceShip spaceShip, Map<String, String> commands, FlightControlService flightControlService) {
-        this.commands = commands;
-        this.spaceShip = spaceShip;
-        this.krpcConnection = krpcConnection;
-        this.flightControlService = flightControlService;
-
-        this.vessel = spaceShip.getActiveVessel();
-    }
-
-//    public LandingService(Map<String, String> comandos) {
-//        super(getConexao());
-//        this.comandos = comandos;
-//        this.altitudeAcelPID.limitarSaida(0, 1);
-//        this.velocidadeAcelPID.limitarSaida(0, 1);
-//        StatusJPanel.setStatus(STATUS_POUSO_AUTOMATICO.get());
+//package com.pesterenan.service;
+//
+//import com.pesterenan.enums.Modulos;
+//import com.pesterenan.model.SpaceShip;
+//import com.pesterenan.utils.ControlePID;
+//import com.pesterenan.utils.Navigation;
+//import java.util.HashMap;
+//import java.util.Map;
+//import krpc.client.RPCException;
+//import krpc.client.StreamException;
+//
+//import static com.pesterenan.enums.Modulos.ALTITUDE_SOBREVOO;
+//import static com.pesterenan.enums.Modulos.MODULO;
+//import static com.pesterenan.enums.Modulos.MODULO_POUSO_SOBREVOAR;
+//import static java.lang.Double.parseDouble;
+//
+//public class LandingService {
+//
+//    private boolean isOnAutomaticLandingMode;
+//
+//    private boolean isFlyingOver;
+//
+//    private double altitudeDeSobrevoo = 100;
+//
+//    private final double velP = 0.025;
+//    private final double velI = 0.001;
+//    private final double velD = 0.01;
+//
+//    private boolean isComingDown;
+//
+//    private final Map<String, String> commands;
+//
+//    private ControlePID altitudeAcelPID;
+//
+//    private ControlePID velocidadeAcelPID;
+//
+//    private final FlightControlService flightControlService;
+//
+//    private final SpaceShip spaceShip;
+//
+//    private final Navigation navigation;
+//
+//    public LandingService(ControlePID altitudeAcelPID, ControlePID velocidadeAcelPID, FlightControlService flightControlService,
+//                          SpaceShip spaceShip, Navigation navigation) {
+//        this.spaceShip = spaceShip;
+//        this.navigation = navigation;
+//        this.flightControlService = flightControlService;
+//
+//        this.altitudeAcelPID = new ControlePID();
+//        this.velocidadeAcelPID = new ControlePID();
+//        this.commands = new HashMap<>();
 //    }
-
-    public static void descer() {
-        descerDoSobrevoo = true;
-
-    }
-
-    @Override
-    public void run() {
-        if (commands.get(Modulos.MODULO.get()).equals(Modulos.MODULO_POUSO_SOBREVOAR.get())) {
-            this.altitudeDeSobrevoo = Double.parseDouble(commands.get(Modulos.ALTITUDE_SOBREVOO.get()));
-            isOverflying = true;
-            altitudeAcelPID.limitarSaida(-0.5, 1);
-            executeOverflyProcedure();
-        }
-        if (commands.get(Modulos.MODULO.get()).equals(Modulos.MODULO_POUSO.get())) {
-            pousarAutomaticamente();
-        }
-    }
-
-    private void executeOverflyProcedure() {
-        try {
-            this.flightControlService.executeLiftoffProcedure();
-            this.vessel.getAutoPilot().engage();
-
-            while (isOverflying) {
-                try {
-                    if (this.spaceShip.getVelHorizontal().get() > 15) {
-                        navigation.mirarRetrogrado();
-                    } else {
-                        navigation.mirarRadialDeFora();
-                    }
-                    ajustarCtrlPIDs();
-                    double altPID = altitudeAcelPID.computarPID(altitudeSup.get(), altitudeDeSobrevoo);
-                    double velPID = velocidadeAcelPID.computarPID(velVertical.get(), altPID * acelGravidade);
-                    throttle(velPID);
-                    if (descerDoSobrevoo == true) {
-                        naveAtual.getControl().setGear(true);
-                        altitudeDeSobrevoo = 0;
-                        checarPouso();
-                    }
-                    Thread.sleep(25);
-                } catch (RPCException | StreamException | IOException e) {
-                    StatusJPanel.setStatus("Função abortada.");
-                    naveAtual.getAutoPilot().disengage();
-                    break;
-                }
-            }
-        } catch (InterruptedException | RPCException e) {
-            StatusJPanel.setStatus("Decolagem abortada.");
-            try {
-                naveAtual.getAutoPilot().disengage();
-            } catch (RPCException e1) {
-            }
-            return;
-        }
-    }
-
-    private void pousarAutomaticamente() {
-        try {
-            liftoff();
-            throttle(0.0f);
-            naveAtual.getAutoPilot().engage();
-            StatusJPanel.setStatus("Iniciando pouso automático em: " + corpoCeleste);
-            checarAltitudeParaPouso();
-            comecarPousoAutomatico();
-        } catch (RPCException | StreamException | InterruptedException | IOException e) {
-            StatusJPanel.setStatus("Não foi possível pousar a nave, operação abortada.");
-            try {
-                naveAtual.getAutoPilot().disengage();
-            } catch (RPCException e1) {
-            }
-        }
-    }
-
-    private void checarAltitudeParaPouso() throws RPCException, StreamException, InterruptedException {
-        while (!executandoPousoAutomatico) {
-            distanciaDaQueima = calcularDistanciaDaQueima();
-            naveAtual.getControl().setBrakes(true);
-            navigation.mirarRetrogrado();
-            if (altitudeSup.get() < ALTITUDE_POUSO_AUTOMATICO) {
-                if (altitudeSup.get() < distanciaDaQueima && velVertical.get() < -1) {
-                    executandoPousoAutomatico = true;
-                }
-            }
-            Thread.sleep(50);
-        }
-    }
-
-    private void comecarPousoAutomatico() throws InterruptedException, RPCException, StreamException, IOException {
-        StatusJPanel.setStatus("Iniciando Pouso Automático!");
-        while (executandoPousoAutomatico) {
-            distanciaDaQueima = calcularDistanciaDaQueima();
-            checarAltitude();
-            checarPouso();
-            Thread.sleep(25);
-        }
-    }
-
-    private void ajustarCtrlPIDs() throws RPCException, StreamException {
-        double valorTEP = calcularTEP();
-        velocidadeAcelPID.ajustarPID(valorTEP * velP, valorTEP * velI, valorTEP * velD);
-    }
-
-    private void checarAltitude() throws RPCException, StreamException, IOException, InterruptedException {
-        distanciaDaQueima = calcularDistanciaDaQueima();
-        ajustarCtrlPIDs();
-        if (velHorizontal.get() > 3) {
-            navigation.mirarRetrogrado();
-        } else {
-            navigation.mirarRadialDeFora();
-        }
-
-        double limiarDoPouso = calcularAcelMaxima() * 3;
-        if (altitudeSup.get() - limiarDoPouso < limiarDoPouso) {
-            naveAtual.getControl().setGear(true);
-        }
-
-        double acel = altitudeAcelPID.computarPID(altitudeSup.get(), distanciaDaQueima);
-        double vel = velocidadeAcelPID.computarPID(velVertical.get(), -5);
-        double limite = (altitudeSup.get() - limiarDoPouso) / limiarDoPouso;
-        throttle(Utilities.linearInterpolation(vel, acel, limite));
-    }
-
-    private void checarPouso() throws RPCException, IOException, InterruptedException {
-        switch (naveAtual.getSituation()) {
-            case LANDED:
-            case SPLASHED:
-                StatusJPanel.setStatus("Pouso Finalizado!");
-                executandoPousoAutomatico = false;
-                isOverflying = false;
-                descerDoSobrevoo = false;
-                throttle(0.0f);
-                naveAtual.getControl().setSAS(true);
-                naveAtual.getControl().setRCS(true);
-                naveAtual.getControl().setBrakes(false);
-                naveAtual.getAutoPilot().disengage();
-            default:
-                break;
-        }
-    }
-
-    private double calcularDistanciaDaQueima() throws RPCException, StreamException {
-        velocidadeTotal = Math.abs(new Vector(velHorizontal.get(), velVertical.get(), 0).Magnitude());
-        double duracaoDaQueima = velocidadeTotal / calcularAcelMaxima();
-        double distanciaDaQueima = (calcularAcelMaxima() * duracaoDaQueima) * duracaoDaQueima;
-        MainGui.getParametros().getComponent(0).firePropertyChange("distancia", 0, distanciaDaQueima);
-        return distanciaDaQueima;
-    }
-}
+//
+//    public void commandLanding() {
+//        this.isComingDown = true;
+//    }
+//
+//    public void executeLandingProcedure() {
+//        if (commands.get(MODULO.get()).equals(MODULO_POUSO_SOBREVOAR.get())) {
+//            this.altitudeDeSobrevoo = parseDouble(commands.get(ALTITUDE_SOBREVOO.get()));
+//            this.isFlyingOver = true;
+//            altitudeAcelPID.limitarSaida(-0.5, 1);
+//            executeOverflyProcedure();
+//        }
+//        if (commands.get(MODULO.get()).equals(Modulos.MODULO_POUSO.get())) {
+//            pousarAutomaticamente();
+//        }
+//    }
+//
+//    private void executeOverflyProcedure() {
+//        try {
+//            this.flightControlService.executeLiftoffProcedure();
+//            this.spaceShip.getActiveVessel().getAutoPilot().engage();
+//
+//            while (this.isFlyingOver) {
+//                try {
+//                    if (this.spaceShip.getVelHorizontal().get() > 15) {
+//                        this.navigation.mirarRetrogrado();
+//                    } else {
+//                        this.navigation.mirarRadialDeFora();
+//                    }
+//
+//                    ajustarCtrlPIDs();
+//                    double altPID = altitudeAcelPID.computarPID(this.spaceShip.altitudeSup.get(), altitudeDeSobrevoo);
+//                    double velPID = velocidadeAcelPID.computarPID(velVertical.get(), altPID * acelGravidade);
+//                    throttle(velPID);
+//                    if (descerDoSobrevoo == true) {
+//                        naveAtual.getControl().setGear(true);
+//                        altitudeDeSobrevoo = 0;
+//                        checarPouso();
+//                    }
+//                    Thread.sleep(25);
+//                } catch (RPCException | StreamException | IOException e) {
+//                    StatusJPanel.setStatus("Função abortada.");
+//                    naveAtual.getAutoPilot().disengage();
+//                    break;
+//                } catch (StreamException e) {
+//                    throw new RuntimeException(e);
+//                }
+//            }
+//        } catch (InterruptedException | RPCException | RPCException e) {
+//            StatusJPanel.setStatus("Decolagem abortada.");
+//            try {
+//                naveAtual.getAutoPilot().disengage();
+//            } catch (RPCException e1) {
+//            }
+//            return;
+//        }
+//    }
+//
+//    private void ajustarCtrlPIDs() throws RPCException, StreamException {
+//        double valorTEP = this.flightControlService.calcularTEP();
+//        velocidadeAcelPID.ajustarPID(valorTEP * this.velP, valorTEP * this.velI, valorTEP * this.velD);
+//    }
+//
+//
+//}
