@@ -9,9 +9,6 @@ import krpc.client.RPCException;
 import krpc.client.StreamException;
 import krpc.client.services.SpaceCenter.Engine;
 import krpc.client.services.SpaceCenter.Vessel;
-import lombok.extern.java.Log;
-import lombok.extern.log4j.Log4j;
-import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
 
 import static com.pesterenan.utils.Utilities.easeInCirc;
@@ -58,6 +55,13 @@ public class LiftoffService {
     public void executeLiftoffProcedure() throws RPCException, InterruptedException {
         log.info("executeLiftoffProcedure");
         this.vessel.getControl().setSAS(true);
+        this.vessel.getParts().getControlSurfaces().forEach(controlSurface -> {
+            try {
+                controlSurface.setAuthorityLimiter(0f);
+            } catch (RPCException e) {
+                throw new RuntimeException(e);
+            }
+        });
         this.flightControlService.setThrottle(ONE); // Full Throttle
 
         if (this.vessel.getSituation().equals(PRE_LAUNCH)) {
@@ -66,18 +70,19 @@ public class LiftoffService {
         }
     }
 
-    public synchronized void gravityCurve() throws RPCException, InterruptedException, StreamException {
+    public void gravityCurve() throws RPCException, InterruptedException, StreamException {
         final BigDecimal PITCH_UP = new BigDecimal("90");
         BigDecimal currentPitch = PITCH_UP;
 
         this.vessel.getAutoPilot().targetPitchAndHeading(currentPitch.floatValue(), this.heading.floatValue());
         this.vessel.getAutoPilot().setTargetRoll(this.roll.floatValue());
-        this.vessel.getAutoPilot().engage();
 
         this.flightControlService.setThrottle(ONE);
 
         while (currentPitch.compareTo(ONE) > 0) {
-            if (this.spaceShip.getApoapsisAltitude().get() > this.finalApoapsisAltitude.doubleValue()) {
+            log.info("MET {}", this.vessel.getMET());
+            if (this.spaceShip.getApoapsisAltitude().get() >= this.finalApoapsisAltitude.doubleValue()) {
+                log.info("ApoapsisAltitude {}", this.spaceShip.getApoapsisAltitude().get());
                 break;
             }
 
@@ -100,7 +105,7 @@ public class LiftoffService {
                 Thread.sleep(1000);
             }
 
-            System.out.printf("A inclinação do foguete é: %.1f%n", currentPitch);
+            log.info("A inclinação do foguete é: {}", currentPitch);
             Thread.sleep(250);
         }
     }
