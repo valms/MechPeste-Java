@@ -1,5 +1,6 @@
 package com.pesterenan.service;
 
+import com.pesterenan.exceptions.FlightControlException;
 import com.pesterenan.model.SpaceShip;
 import java.math.BigDecimal;
 import krpc.client.RPCException;
@@ -17,16 +18,32 @@ public class FlightControlService {
         this.vessel = spaceShip.getActiveVessel();
     }
 
-    public void setThrottle(BigDecimal throttle) throws RPCException {
-        this.vessel.getControl().setThrottle(throttle.floatValue());
+    public void setThrottle(BigDecimal throttle) throws FlightControlException {
+        try {
+            this.vessel.getControl().setThrottle(throttle.floatValue());
+        } catch (RPCException ex) {
+            ex.printStackTrace();
+            throw new FlightControlException("Erro ao regular o acelerador!");
+        }
     }
 
-    public double calcularTEP() throws RPCException, StreamException {
-        return this.vessel.getAvailableThrust() / (this.spaceShip.getTotalShipMass().get() * this.spaceShip.getSurfaceGravity());
+    public double calcularTEP() throws FlightControlException {
+        try {
+            return this.vessel.getAvailableThrust() / (this.spaceShip.getTotalShipMass().get() * this.spaceShip.getSurfaceGravity());
+        } catch (RPCException | StreamException ex) {
+            ex.printStackTrace();
+            throw new FlightControlException("Erro ao calcular o TEP!");
+        }
     }
 
-    public double calcularAcelMaxima() throws RPCException, StreamException {
-        return this.calcularTEP() * this.spaceShip.getSurfaceGravity() - this.spaceShip.getSurfaceGravity();
+    public double calcularAcelMaxima() throws FlightControlException {
+        try {
+            return this.calcularTEP() * this.spaceShip.getSurfaceGravity() - this.spaceShip.getSurfaceGravity();
+        } catch (FlightControlException ex) {
+            ex.printStackTrace();
+            throw new FlightControlException("Erro ao calcular a aceleração!");
+        }
+
     }
 
 }

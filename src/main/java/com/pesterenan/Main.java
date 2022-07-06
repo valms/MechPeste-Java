@@ -1,7 +1,9 @@
 package com.pesterenan;
 
 import com.pesterenan.model.SpaceShip;
+import com.pesterenan.service.FlightControlService;
 import com.pesterenan.service.LiftoffService;
+import com.pesterenan.service.ManeuverService;
 import com.pesterenan.views.TestUI;
 import java.io.IOException;
 import krpc.client.Connection;
@@ -15,9 +17,14 @@ public class Main {
 
         try (Connection connection = Connection.newInstance("TEST")) {
             SpaceShip spaceShip = new SpaceShip(connection);
-            LiftoffService liftoffService = new LiftoffService(spaceShip);
-            liftoffService.executeLiftoffProcedure();
-            liftoffService.gravityCurve();
+//            FlightControlService flightControlService = new FlightControlService(spaceShip);
+//            LiftoffService liftoffService = new LiftoffService(spaceShip);
+//            ManeuverService maneuverService = new ManeuverService(spaceShip);
+//            liftoffService.executeLiftoffProcedure();
+//            liftoffService.gravityCurve();
+//            maneuverService.apoapsissManeuver();
+//            maneuverService.executeNextManeuver();
+
 
         } catch (IOException | RPCException | InterruptedException | StreamException e) {
             throw new RuntimeException(e);
