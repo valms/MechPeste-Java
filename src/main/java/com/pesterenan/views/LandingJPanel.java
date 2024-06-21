@@ -18,7 +18,7 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
 import com.pesterenan.MechPeste;
-import com.pesterenan.resources.Bundle;
+import com.pesterenan.i18n.Bundle;
 import com.pesterenan.utils.Dicionario;
 import com.pesterenan.utils.Modulos;
 

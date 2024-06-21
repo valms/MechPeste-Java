@@ -16,7 +16,7 @@ import javax.swing.JPanel;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.border.TitledBorder;
 
-import com.pesterenan.resources.Bundle;
+import com.pesterenan.i18n.Bundle;
 
 public class FunctionsJPanel extends JPanel implements ActionListener {
 	private static final long serialVersionUID = 1L;

@@ -15,7 +15,7 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.border.BevelBorder;
 
 import com.pesterenan.MechPeste;
-import com.pesterenan.resources.Bundle;
+import com.pesterenan.i18n.Bundle;
 
 public class StatusJPanel extends JPanel {
 	private static final long serialVersionUID = 1L;

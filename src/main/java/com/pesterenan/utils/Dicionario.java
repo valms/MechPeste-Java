@@ -1,7 +1,7 @@
 package com.pesterenan.utils;
 
 public enum Dicionario {
-	MECHPESTE("MechPeste"), 
+	MECHPESTE("com.pesterenan.MechPeste"),
 	CONECTAR("Conectar"), 
 	DECOLAGEM_ORBITAL("Decolagem Orbital"), 
 	POUSO_AUTOMATICO("Pouso Automático"), 

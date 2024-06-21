@@ -20,7 +20,7 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.border.TitledBorder;
 
 import com.pesterenan.MechPeste;
-import com.pesterenan.resources.Bundle;
+import com.pesterenan.i18n.Bundle;
 import com.pesterenan.utils.Modulos;
 import javax.swing.JCheckBox;
 
